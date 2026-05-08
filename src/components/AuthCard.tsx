@@ -1,9 +1,19 @@
+import { useState } from "react";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+
+import { auth } from "@/firebase";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Sparkles, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { AuroraBackground } from "./AuroraBackground";
 
 export function AuthCard({ mode }: { mode: "login" | "signup" }) {
+  const [email,setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const isSignup = mode === "signup";
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 py-12">
@@ -34,16 +44,57 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
 
           <form
             className="mt-8 space-y-3"
-            onSubmit={(e) => {
-              e.preventDefault();
+            onSubmit={async (e) => {
+             e.preventDefault();
+
+             try {
+              if (isSignup) {
+               await createUserWithEmailAndPassword(
+                auth, 
+                email,
+                password
+               );
+
+               alert("Account created 🚀");
+             } else {
+               await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+               );
+
+               alert("Login successful 🚀");
+              }
+
               window.location.href = "/dashboard";
+             } catch (error: any) {
+              alert(error.message);
+             }
             }}
           >
             {isSignup && (
-              <Field icon={User} type="text" placeholder="Full name" />
+              <Field
+  icon={User}
+  type="text"
+  placeholder="Full name"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+/>
             )}
-            <Field icon={Mail} type="email" placeholder="you@creator.com" />
-            <Field icon={Lock} type="password" placeholder="Password" />
+            <Field
+  icon={Mail}
+  type="email"
+  placeholder="you@creator.com"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/>
+            <Field
+  icon={Lock}
+  type="password"
+  placeholder="Password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+/>
 
             <button
               type="submit"
